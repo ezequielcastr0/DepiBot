@@ -13,10 +13,10 @@ export default function DepilifeChatbot() {
 
   // ✅ Optimización para evitar renderizados innecesarios
   const quickReplies = useMemo(() => [
-    "¿Cuáles son los tratamientos disponibles?",
+    "¿Cuales son las carreras?",
     "¿Cuál es el horario de atención?",
-    "¿Cuánto tiempo dura una sesión?",
-    "¿Ofrecen promociones?"
+    "¿Cuánto tiempo dura carrerra?",
+    "¿Horario de la cursada?"
   ], []);
 
   const handleQuickReply = (text: string) => {
@@ -24,52 +24,44 @@ export default function DepilifeChatbot() {
     generateResponse(text);
   };
 
-  const generateResponse = async (inputText: string) => {
-    if (!GEMINI_API_KEY) {
-      setHistory(prevHistory => [...prevHistory, { role: 'bot', text: 'Error: Clave de API no encontrada.' }]);
-      return;
-    }
+ const generateResponse = async (inputText: string) => {
+  if (!GEMINI_API_KEY) {
+    setHistory(prev => [...prev, { role: 'bot', text: 'Error: Clave de API no encontrada.' }]);
+    return;
+  }
 
-    if (!inputText.trim()) {
-      console.error("Intento de generar respuesta con texto vacío.");
-      return;
-    }
+  if (!inputText.trim()) {
+    console.error("Intento de generar respuesta con texto vacío.");
+    return;
+  }
 
-    setIsTyping(true);
+  setIsTyping(true);
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-      const config = { responseMimeType: 'text/plain' };
-      const model = 'gemini-2.0-flash';
-      const prompt = "";
-       const systemPrompt = promptData.prompt;
-     // Solo agregás el prompt cuando history.length === 0
-const contents = [
-  ...(history.length === 0
-    ? [{ role: 'user', parts: [{ text: promptData.prompt }] }]
-    : []
-  ),
-  ...history.map(item => ({
-    role: item.role === 'user' ? 'user' : 'model',
-    parts: [{ text: item.text }]
-  })),
-  { role: 'user', parts: [{ text: inputText }] }
-];
+  try {
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
+    const recentMessages = history.slice(-6)
+      .map(msg => `${msg.role === 'user' ? 'Usuario' : 'IA'}: ${msg.text}`)
+      .join('\n');
 
+    const fullPrompt = `${promptData.prompt}\n\n${recentMessages}\nUsuario: ${inputText}`;
 
+    const response = await ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }]
+    });
 
-      const response = await ai.models.generateContent({ model, config, contents });
-      const responseText = response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'No se obtuvo una respuesta del modelo.';
+    const responseText = response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'No se obtuvo una respuesta del modelo.';
+    setHistory(prev => [...prev, { role: 'bot', text: responseText }]);
 
-      setHistory(prevHistory => [...prevHistory, { role: 'bot', text: responseText }]);
-    } catch (error) {
-      console.error('Error al generar respuesta:', error);
-      setHistory(prevHistory => [...prevHistory, { role: 'bot', text: 'Hubo un problema al generar la respuesta.' }]);
-    }
+  } catch (err) {
+    console.error('Error al generar la respuesta:', err);
+    setHistory(prev => [...prev, { role: 'bot', text: 'Hubo un problema al generar la respuesta.' }]);
+  }
 
-    setIsTyping(false);
-  };
+  setIsTyping(false);
+};
+
 
   // ✅ Corrección del desplazamiento automático
   useEffect(() => {
@@ -82,7 +74,7 @@ const contents = [
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Asistente IA - Depilife</Text>
+      <Text style={styles.title}>Asitente ISFT 220</Text>
 
       <FlatList
         ref={listRef}
@@ -125,11 +117,19 @@ const contents = [
 
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
-          placeholder="Escribe tu mensaje..."
-          value={question}
-          onChangeText={setQuestion}
-        />
+  style={styles.input}
+  placeholder="Escribe tu mensaje..."
+  value={question}
+  onChangeText={setQuestion}
+  onSubmitEditing={() => {
+    if (question.trim()) {
+      setHistory(prev => [...prev, { role: 'user', text: question }]);
+      generateResponse(question);
+      setQuestion('');
+    }
+  }}
+  blurOnSubmit={false}
+/>
         <Button
   title="Enviar"
   onPress={() => {
@@ -150,13 +150,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff5f8',
+    backgroundColor: '#0b1f35', // azul muy oscuro
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#d81b60',
+    color: '#a3dcff', // celeste claro del logo
     textAlign: 'center',
   },
   userMessageContainer: {
@@ -175,24 +175,24 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   userMessageBox: {
-    backgroundColor: '#d81b60',
+    backgroundColor: '#1a4f86', // azul intermedio institucional
     padding: 12,
     borderRadius: 12,
     maxWidth: '80%',
   },
   botMessageBox: {
-    backgroundColor: '#ffe3ed',
+    backgroundColor: '#1c2e45', // azul grisáceo oscuro
     padding: 12,
     borderRadius: 12,
     maxWidth: '80%',
   },
   userMessage: {
-    color: 'white',
+    color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 16,
   },
   botMessage: {
-    color: '#333',
+    color: '#e0f2ff',
     fontSize: 16,
   },
   typingIndicator: {
@@ -202,36 +202,34 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   typingText: {
-    color: '#d81b60',
+    color: '#a3dcff',
     marginLeft: 5,
     fontStyle: 'italic',
   },
-   quickRepliesContainer: {
-  position: 'absolute',
-  bottom: 10, // ✅ Ubica los botones cerca de la parte inferior
-  left: 0,
-  right: 0,
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  paddingVertical: 10,
-  paddingHorizontal: 5,
-},
+  quickRepliesContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
   quickReplyButton: {
-  backgroundColor: '#d81b60',
-  paddingVertical: 8,
-  paddingHorizontal: 15,
-  borderRadius: 20,
-  margin: 5,
-  flexShrink: 1, // ✅ Permite que el texto se ajuste sin que el botón se haga gigante
-},
-quickReplyText: {
-  color: 'white',
-  fontWeight: 'bold',
-  fontSize: 14,
-  textAlign: 'center',
-  flexWrap: 'wrap', // ✅ Hace que el texto se divida en líneas
-},
+    backgroundColor: '#1a4f86',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    margin: 5,
+    flexShrink: 1,
+  },
+  quickReplyText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
   inputContainer: {
     flexDirection: 'row',
     marginTop: 10,
@@ -240,9 +238,10 @@ quickReplyText: {
     flex: 1,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#d81b60',
+    borderColor: '#a3dcff',
     borderRadius: 8,
     marginRight: 10,
+    backgroundColor: '#132b42',
+    color: '#ffffff',
   },
-  
 });
