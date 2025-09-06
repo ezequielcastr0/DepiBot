@@ -1,17 +1,20 @@
 import { Image } from 'expo-image';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+
 const images = [
   require('@/assets/images/image1.png'),
   require('@/assets/images/image2.png'),
-  require('@/assets/images/image3.png'),
-  require('@/assets/images/image4.png'),
-  require('@/assets/images/image5.png'),
-  require('@/assets/images/image6.png'),
-  require('@/assets/images/image7.png'),
-  require('@/assets/images/image8.png'),
+  require('@/assets/images/image3.png')
 ];
 
 export default function CustomCarousel() {
@@ -20,18 +23,48 @@ export default function CustomCarousel() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % images.length;
-        flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
-        return nextIndex;
-      });
+      const nextIndex = (currentIndex + 1) % images.length;
+      flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+      setCurrentIndex(nextIndex);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [currentIndex]);
 
   return (
     <View style={styles.container}>
+      {/* Header estilo DepiLife */}
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('@/assets/icons/depilife-logo.png')}
+            style={styles.logoImage}
+          />
+        </View>
+
+        <View style={styles.nav}>
+          <TouchableOpacity><Text style={styles.link}>Tienda online</Text></TouchableOpacity>
+          <TouchableOpacity><Text style={styles.link}>Depilación láser</Text></TouchableOpacity>
+          <TouchableOpacity><Text style={styles.link}>Modelado corporal</Text></TouchableOpacity>
+          <TouchableOpacity><Text style={styles.link}>Centros</Text></TouchableOpacity>
+          <TouchableOpacity><Text style={styles.link}>Más</Text></TouchableOpacity>
+        </View>
+
+        <View style={styles.rightActions}>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>MiDepiLife</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.extraIcon}>
+            <Image
+              source={require('@/assets/icons/shop_icon.png')}
+              style={styles.iconImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Carrusel */}
       <FlatList
         ref={flatListRef}
         data={images}
@@ -42,44 +75,114 @@ export default function CustomCarousel() {
         renderItem={({ item }) => (
           <View style={styles.slide}>
             <Image source={item} style={styles.image} />
-            <View style={styles.overlay}>
-              <Text style={styles.title}>Chatbot Inteligentes</Text>
-            </View>
           </View>
         )}
-        getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index
+        })}
       />
+
+      {/* Botón flotante DepiBot */}
+      <TouchableOpacity style={styles.chatbotButton}>
+        <Image
+          source={require('@/assets/icons/chatbot-icon.png')}
+          style={styles.chatbotIcon}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: 140,
+    height: 38,
+    resizeMode: 'contain',
+    marginLeft: 10,
+  },
+  nav: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  link: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  button: {
+    backgroundColor: '#00c48c',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  extraIcon: {
+    padding: 6,
+  },
+  iconImage: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+  },
+
+  // Carrusel
   slide: {
     width,
     height,
-    position: 'relative',
   },
   image: {
     width,
     height,
     resizeMode: 'cover',
   },
-  overlay: {
+
+  // Botón flotante DepiBot
+  chatbotButton: {
     position: 'absolute',
-    top: 60,
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    paddingVertical: 20,
+    bottom: 30,
+    right: 20,
+    backgroundColor: '#00c48c',
+    padding: 12,
+    borderRadius: 30,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
+  chatbotIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
   },
 });
