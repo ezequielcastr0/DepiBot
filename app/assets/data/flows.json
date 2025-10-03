@@ -1,0 +1,37 @@
+{
+  "tratamientos": {
+    "inicio": "Ofrecemos depilación definitiva, tratamientos faciales y corporales. ¿Te interesa alguno en particular?",
+    "seguimiento": {
+      "depilación definitiva": "¿En qué zona del cuerpo estás interesado/a?",
+      "faciales": "¿Querés mejorar la piel, reducir manchas o hidratar?",
+      "corporales": "¿Buscás tonificar, reducir celulitis o relajar?"
+    }
+  },
+  "horarios": {
+    "inicio": "Atendemos de lunes a sábado de 10 a 19 hs. ¿Querés saber el horario de una sucursal específica?",
+    "seguimiento": {
+      "villa ballester": "En Villa Ballester atendemos de lunes a sábado de 10 a 19 hs.",
+      "otro": "¿Podés indicarme la sucursal que te interesa?"
+    }
+  },
+  "ubicacion": {
+    "inicio": "Estamos en Villa Ballester, Provincia de Buenos Aires.",
+    "seguimiento": {
+      "mapa": "¿Querés que te mande el link de Google Maps?"
+    }
+  },
+  "turnos": {
+    "inicio": "Para poder ayudarte con los turnos, necesito saber si estás registrado en DepiLife. Por favor, indicame tu DNI:",
+    "seguimiento": {
+      "whatsapp": "Te dejo el link directo: https://wa.me/541112345678",
+      "web": "Nuestra web es www.depilife.com.ar"
+    }
+  },
+  "precios": {
+    "inicio": "Los precios varían según el tratamiento y la zona. ¿Querés saber el precio de alguno en particular?",
+    "seguimiento": {
+      "depilación definitiva": "Por ejemplo, piernas completas tienen un valor aproximado de $X. ¿Querés consultar otra zona?",
+      "facial": "Los tratamientos faciales comienzan desde $Y. ¿Querés ver el detalle?"
+    }
+  }
+}
